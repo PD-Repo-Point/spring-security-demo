@@ -9,7 +9,6 @@ import pd.workshop.springsecuritydemoproject.model.Employee;
 import java.util.Arrays;
 import java.util.List;
 
-// EMPLOYEE
 @RestController
 @RequestMapping("api/v1/springsecurity/employee")
 public class EmployeeController {
@@ -29,6 +28,6 @@ public class EmployeeController {
     }
 // Form Based Authentication
 // Basic Auth
-// OAuth
+// OAuth 2.0
 // JWT
 }
