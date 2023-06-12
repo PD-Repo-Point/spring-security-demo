@@ -9,7 +9,13 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import pd.workshop.springsecuritydemoproject.auth.jwt.JwtUsernameAndPasswordAuthenticationFilter;
 import pd.workshop.springsecuritydemoproject.service.ApplicationUserService;
 
 import static pd.workshop.springsecuritydemoproject.security.AppUserPermission.COURSE_WRITE;
@@ -20,6 +26,8 @@ import static pd.workshop.springsecuritydemoproject.security.AppUserRole.*;
 public class AppSecurityConfig extends WebSecurityConfigurerAdapter {
     private final PasswordEncoder passwordEncoder;
     private final ApplicationUserService applicationUserService;
+
+
 
     @Autowired
     public AppSecurityConfig(PasswordEncoder passwordEncoder, ApplicationUserService applicationUserService) {
@@ -33,6 +41,10 @@ public class AppSecurityConfig extends WebSecurityConfigurerAdapter {
         // 2. PERMISSION BASED AUTHENTICATION
         http
                 .csrf().disable()
+                .sessionManagement()
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                .and()
+                .addFilter( new JwtUsernameAndPasswordAuthenticationFilter(authenticationManager()))
                 .authorizeRequests()
                 .antMatchers("/", "index","/css/*", "/js/*").permitAll()
                 .antMatchers("/api/**").hasRole(EMPLOYEE.name())
@@ -41,9 +53,8 @@ public class AppSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(HttpMethod.PUT,"/management/api/**").hasAuthority(COURSE_WRITE.getPermission())
                 .antMatchers(HttpMethod.DELETE, "/management/api/**").hasAuthority(COURSE_WRITE.getPermission())
                 .anyRequest()
-                .authenticated()
-                .and()
-                .httpBasic();
+                .authenticated();
+
     }
 
     @Override
@@ -54,10 +65,12 @@ public class AppSecurityConfig extends WebSecurityConfigurerAdapter {
     @Bean
     public DaoAuthenticationProvider daoAuthenticationProvider(){
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
-        provider.setUserDetailsService(applicationUserService);
-        provider.setPasswordEncoder(passwordEncoder);
+        provider.setUserDetailsService(applicationUserService);// User Details
+        provider.setPasswordEncoder(passwordEncoder); // Password Encoder
         return provider;
     }
+
+
 
     /*@Override
     @Bean
