@@ -15,6 +15,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import pd.workshop.springsecuritydemoproject.auth.jwt.JwtTokenFilter;
 import pd.workshop.springsecuritydemoproject.auth.jwt.JwtUsernameAndPasswordAuthenticationFilter;
 import pd.workshop.springsecuritydemoproject.service.ApplicationUserService;
 
@@ -26,8 +27,6 @@ import static pd.workshop.springsecuritydemoproject.security.AppUserRole.*;
 public class AppSecurityConfig extends WebSecurityConfigurerAdapter {
     private final PasswordEncoder passwordEncoder;
     private final ApplicationUserService applicationUserService;
-
-
 
     @Autowired
     public AppSecurityConfig(PasswordEncoder passwordEncoder, ApplicationUserService applicationUserService) {
@@ -45,6 +44,7 @@ public class AppSecurityConfig extends WebSecurityConfigurerAdapter {
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .addFilter( new JwtUsernameAndPasswordAuthenticationFilter(authenticationManager()))
+                .addFilterAfter(new JwtTokenFilter(),JwtUsernameAndPasswordAuthenticationFilter.class)
                 .authorizeRequests()
                 .antMatchers("/", "index","/css/*", "/js/*").permitAll()
                 .antMatchers("/api/**").hasRole(EMPLOYEE.name())

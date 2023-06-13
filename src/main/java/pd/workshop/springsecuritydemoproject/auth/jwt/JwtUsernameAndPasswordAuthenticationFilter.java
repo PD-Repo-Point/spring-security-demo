@@ -41,7 +41,17 @@ public class JwtUsernameAndPasswordAuthenticationFilter extends UsernamePassword
         try {
 
             UsernameAndPasswordRequest authenticateRequest = new ObjectMapper().readValue(
+                    /*
+                    * {
+                            "username": "alexa",
+                            "password": "password"
+                        }
+                    * */
                     request.getInputStream(),
+                    /*
+                        private String username;
+                        private String password;
+                    * */
                     UsernameAndPasswordRequest.class);
 
             Authentication authentication =
@@ -75,8 +85,7 @@ public class JwtUsernameAndPasswordAuthenticationFilter extends UsernamePassword
                 .setExpiration(java.sql.Date.valueOf(LocalDate.now().plusWeeks(1)))
                 .signWith(Keys.hmacShaKeyFor(secretKey.getBytes()))
                 .compact();
+
         response.addHeader("Authorization", "Bearer "+token);
-
     }
-
 }
